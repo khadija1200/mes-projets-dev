@@ -1,0 +1,565 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Adda - Social Network HTML Template</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+    <!-- CSS
+	============================================ -->
+    <!-- google fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/css/vendor/bootstrap.min.css">
+    <!-- Icon Font CSS -->
+    <link rel="stylesheet" href="assets/css/vendor/bicon.min.css">
+    <!-- Flat Icon CSS -->
+    <link rel="stylesheet" href="assets/css/vendor/flaticon.css">
+    <!-- audio & video player CSS -->
+    <link rel="stylesheet" href="assets/css/plugins/plyr.css">
+    <!-- Slick CSS -->
+    <link rel="stylesheet" href="assets/css/plugins/slick.min.css">
+    <!-- nice-select CSS -->
+    <link rel="stylesheet" href="assets/css/plugins/nice-select.css">
+    <!-- perfect scrollbar css -->
+    <link rel="stylesheet" href="assets/css/plugins/perfect-scrollbar.css">
+    <!-- light gallery css -->
+    <link rel="stylesheet" href="assets/css/plugins/lightgallery.min.css">
+    <!-- Main Style CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="functions.js"></script>
+
+    <style>
+    .notification1{
+    position: relative;
+    color: white;
+    text-decoration: none;
+    padding: 1rem 2rem;
+    transition: all .2s;
+  }
+  
+  .notification1 span {
+    position: absolute;
+    top: 1rem;
+    right:-1rem;
+    color:white;
+    background: #dc4734;
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px  ;
+    border-radius: 50%;
+  }
+    </style>
+
+
+</head>
+
+<body>
+    <?php
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    require 'DatabaseFunctions.php';
+    ConnectDatabase();
+    session_start();
+    if (isset($_SESSION['userID'])) {
+        $userID = $_SESSION['userID'];
+    } 
+    $infos = getUserInfoById($userID);
+    $isUserAdmin = $infos['isadmin'];
+    // $posts=postFollowed($userID);
+    $posts_decouvrir = postUnfollowed($userID);
+    $messageInfos=getInteractedUsersAndMessages($userID);
+    $latestUsers= getLatestUsers($userID);
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST['avertiUser']) && isset($_POST['avertiPost'])) {
+            $warningUserID = intval($_POST['avertiUser']);
+            $warningPostID = intval($_POST['avertiPost']);
+            $warningStatus = addAvertissement($warningUserID, $warningPostID);
+            
+            if ($warningStatus["Successful"]) {
+                $redirection = "decouvAdmin.php";
+                header("Location: $redirection");
+            }
+        }
+        if (isset($_POST['popular']) && $_POST['popular'] == 'on') {
+            // Si l'utilisateur a coche la case "populaire", trier les posts par popularité
+            $posts_decouvrir = postPopulaire($userID);
+        }
+        else {
+            // Sinon, trier les posts par ordre le plus récent
+            $posts_decouvrir = postUnfollowed($userID);
+        }
+    }
+
+    ?>
+    <!-- header area start -->
+    <header>
+        <div class="header-top sticky bg-white d-none d-lg-block">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-5">
+                        <!-- header top navigation start -->
+                        <div class="header-top-navigation">
+                            <nav>
+                                <ul>
+                                <li class="active"><a href="accueil.php">Home</a></li>
+                                <li class="notification-trigger">
+                                    <a class="notification1" href="notifications.php">
+                                        Notification
+                                        <span id="notificationCount"></span>
+                                    </a>
+                                </li>
+
+                                <li class="notification-trigger"><a href="statistique.php">Statistique</a></li>
+                                </ul>
+                                
+                            </nav>
+                        </div>
+                        <!-- header top navigation start -->
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <!-- brand logo start -->
+                        <div class="brand-logo text-center">
+                            <a href="accueil.php">
+                                <img src="assets/images/logo/logo.png" alt="brand logo">
+                            </a>
+                        </div>
+                        <!-- brand logo end -->
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="header-top-right d-flex align-items-center justify-content-end">
+                            <div class="header-top-search">
+                                <a style="color: black; 
+                                        background-color: #eebbc3; 
+                                        border:none;
+                                        border-radius:10px;
+                                        padding:7px;
+                                        min-height:30px; 
+                                        min-width: 120px;" href="decouvrir.php">Decouvrir</a>
+                            </div>
+                            <!-- profile picture start -->
+                            <div class="profile-setting-box">
+                                <div class="profile-thumb-small">
+                                    <a href="javascript:void(0)" class="profile-triger">
+                                        <figure>
+                                            <img src="<?php echo $infos['avatar']; ?>"  alt="profile picture" style="height:100%">
+                                        </figure>
+                                    </a>
+                                    <div class="profile-dropdown">
+                                        <div class="profile-head">
+                                            <?php
+                                                $fullName = $infos['prenom'] . ' ' . $infos['nom'];
+                                            ?>
+                                            <h5 class="name"><a href="accueil.php"><?php echo $fullName; ?></a></h5>
+                                            <a class="mail"><?php echo $infos['email']?></a>
+                                        </div>
+                                        <div class="profile-body">
+                                            <ul>
+                                                <li><a href="parameters.php"><i class="flaticon-settings"></i>Paramétres</a></li>
+                                                <li><a href="index.php"><i class="flaticon-unlock"></i>Deconnexion</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- profile picture end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- header area end -->
+    <!-- header area start -->
+    
+
+    <main>
+
+        <div class="main-wrapper pt-80">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 order-2 order-lg-1">
+                        <aside class="widget-area">
+                            <!-- widget single item start -->
+                            <div class="card card-profile widget-item p-0">
+                                <div class="profile-banner">
+                                    <figure class="profile-banner-small">
+                                        <a href="profile.php">
+                                            <img src="<?php echo $infos['avatar']; ?>" alt="">
+                                        </a>
+                                        <a href="profile.php" class="profile-thumb-2">
+                                            <img src="assets/images/photos/adda.png" alt="" >
+                                        </a>
+                                    </figure>
+                                    <div class="profile-desc text-center">
+                                        <?php
+                                            $fullName = $infos['prenom'] . ' ' . $infos['nom'];
+                                        ?>
+                                        <h6 class="author"><a href="profile.php"><?php echo $fullName; ?></a></h6>
+                                        <p><?php echo $infos['description_user']; ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- widget single item start -->
+
+                            <!-- widget single item start -->
+                            <div class="card widget-item">
+                                <h4 class="widget-title">Ils viennent d'arriver sur adda</h4>
+                                <div class="widget-body">
+                                    <ul class="like-page-list-wrapper">
+                                        <?php foreach ($latestUsers as $latestuser):                                         
+                                            $fullName = $latestuser['prenom'] . ' ' . $latestuser['nom'];
+                                        ?>
+
+                                        <li class="unorder-list">
+                                            <!-- profile picture end -->
+                                            <div class="profile-thumb">
+                                                <a>
+                                                    <figure class="profile-thumb-small">
+                                                        <img src="<?php echo $latestuser['avatar']; ?>" alt="profile picture">
+                                                    </figure>
+                                                </a>
+                                            </div>
+                                            <!-- profile picture end -->
+
+                                            <div class="unorder-list-info">
+                                                <h3 class="list-title"><a href="profile1.php?id=<?php echo $latestuser['id']; ?>"><?php echo $fullName ?></a></h3>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- widget single item end -->
+                        </aside>
+                    </div>
+
+                    <div class="col-lg-6 order-1 order-lg-2">
+                        <div class="card">
+                            <h4 class="widget-title">Trends Pour Toi</h4>
+                            <!-- Formulaire pour trier les posts -->
+                            <!-- <form id="post">
+                                <input type="checkbox" id="plusRecents" name="plusRecents" value="plusRecents">
+                                <label for="plusRecents">Plus recents</label>
+                                <input type="checkbox" id="plusPopulaires" name="plusPopulaires" value="plusPopulaires">
+                                <label for="plusPopulaires">Plus populaires</label>
+                                <button class="edit-btn" type="submit">Filtrer</button>
+                            </form> -->
+                            <form method="post">
+                                <label class="author" for="popular"><span style="padding-left: 10px;">Posts populaires</span></label>
+                                <input type="checkbox" id="popular" name="popular"></span>
+                                <label class="author" for="recent"><span style="padding-left: 10px;">Posts recents</span></label>
+                                <input type="checkbox" id="recent" name="recent">
+                                <button class="edit-btn" type="submit"><span style="padding-left: 10px;">Filtrer</span></button>
+                            </form>
+                        </div>
+
+                        <!-- post status start -->
+                        <!-- post status start -->
+                        <?php foreach ($posts_decouvrir as $post): 
+                            $id_poste = $post['id'];
+                            $comments = commentairesUtilisateur($id_poste);
+                        ?>
+                        <div class="card">
+                                <!-- post title start -->
+                                <div class="post-title d-flex align-items-center">
+                                    <!-- profile picture start -->
+                                    <div class="profile-thumb">
+                                        <a>
+                                            <figure class="profile-thumb-middle">
+                                                <img src="<?php echo $post['utilisateur_avatar']; ?>" alt="profile picture" style="height:100%">
+                                            </figure>
+                                        </a>
+                                    </div>
+                                    <!-- profile picture end -->
+
+                                    <div class="posted-author">
+                                        <h6 class="author"><a href="profile1.php?id=<?php echo  $post['id_utilisateur']; ?>"><?php echo $post['utilisateur_prenom'] . ' ' . $post['utilisateur_nom'];?></a></h6>
+                                        <span class="post-time"><?php echo $post['date_publication']; ?></span>
+                                    </div>
+
+                                    
+                                </div>
+                                <!-- post title start -->
+                                <div class="post-content">
+                                    <p class="post-desc"><?php echo $post['description']; ?></p>
+                                    <div class="post-thumb-gallery">
+                                    <div class="post-thumb-gallery">
+                                            <div class="sensitive-overlay" id="sensitiveContent<?php echo $post['id'];?>" style="text-align: center; <?php echo $post['sensible'] == 1 ? 'display: block;' : 'display: none;'; ?>">
+                                                <p style="margin-bottom: 10px;">Ce poste est marqué sensible.</p>
+                                                <button  onclick="onViewAnywayButtonClick(<?php echo $post['id']; ?>)" style="background-color: #dc4734; color: white; border: none; padding: 10px 20px; cursor: pointer;">Voir quand même</button>
+                                            </div>
+                                            <figure class="post-thumb img-popup" id="postThumb<?php echo $post['id']; ?>" style="<?php echo $post['sensible'] == 1 ? 'display: none;' : 'display: block;'; ?>">
+                                                <a href="<?php echo $post['photo_url']; ?>">
+                                                    <img src="<?php echo $post['photo_url']; ?>">
+                                                </a>
+                                            </figure>
+                                        </div>
+                                </div>
+
+
+                                    <div class="post-meta">
+                                    <button class="post-meta-like" id="likeButton<?php echo $post['id'];?>" onclick="onlike(<?php echo $userID; ?>, <?php echo $post['id']; ?>,<?php echo $post['id_utilisateur']; ?>)">
+                                    <?php
+                                        if (doLike($userID,$post['id'] )) {
+                                            echo '<i class="bi bi-heart-beat" style="color:red"></i>';
+                                        } else {
+                                            echo '<i class="bi bi-heart-beat"></i>';
+                                        }
+                                    ?>
+                                        <span id="likesCount<?php echo $post['id'];?>"><?php echo $post['nombre_likes'];?></span><span>likes</span>
+                                    </button>
+                                        <ul class="comment-share-meta">
+                                            <li>
+                                                <button class="post-comment" data-bs-toggle="modal" data-bs-target="#textbox<?php echo $post['id']; ?>">
+                                                    <i class="bi bi-chat-bubble"></i>
+                                                    <span id="commentsCount<?php echo $post['id'];?>"><?php echo $post['nombre_commentaires']; ?></span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="post-share">
+                                                    <i class="bi bi-share"></i>
+                                                    <span></span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div> 
+                                    <!-- comment box start -->
+                                    <div class="card card-small">
+                                        <div class="share-box-inner">
+                                            <!-- share content box start -->
+                                            <div class="share-content-box w-100">
+                                                <form class="share-text-box">
+                                                    <textarea  class="share-text-field" aria-disabled="true" placeholder="Tu as envie de partager quelque chose !?" id="commentInput<?php echo $post['id']; ?>" ></textarea>
+                                                    <button class="btn-share" onclick="sendcomment(<?php echo $userID; ?>, <?php echo $post['id']; ?>,<?php echo $post['id_utilisateur']; ?>) ; event.preventDefault();">comment</button>
+                                                </form>
+                                            </div>
+                                            <!-- share content box end -->
+                                            <!-- Modal start -->
+                                            <div class="modal fade" id="textbox<?php echo $post['id']; ?>" aria-labelledby="textbox">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Commentaires</h5>
+                                                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                            <div class="modal-body custom-scroll">
+                                                                <ul class="like-page-list-wrapper" id="commentList<?php echo $post['id']; ?>">
+                                                                    <?php
+                                                                    if (!empty($comments)) {
+                                                                        foreach ($comments as $comment) {
+                                                                            echo '<li class="unorder-list">';
+                                                                            // Profile picture
+                                                                                echo '<div class="profile-thumb">';
+                                                                                echo '<a href="#">';
+                                                                                echo '<figure class="profile-thumb-small">';
+                                                                                // Utilisation de l'URL de l'image stockée dans la base de données
+                                                                                echo '<img src="' . $comment['avatar'] . '" alt="profile picture" style="width: 100%;">';
+                                                                                echo '</figure>';
+                                                                                echo '</a>';
+                                                                                echo '</div>';
+                                                                                // Informations du follower
+                                                                                echo '<div class="unorder-list-info">';
+                                                                                $fullName = $comment['prenom'] . ' ' . $comment['nom'];
+                                                                                echo '<h3 class="list-title"><a href="profile1.php">' . $fullName . '</a></h3>';
+                                                                                echo '<p class="list-subtitle">'. $comment['contenu_commentaire'] .'</p>';
+                                                                                echo '</div>';
+                                                                                // Bouton de like
+                                                                                echo '<button class="like-button">';
+                                                                                echo '<img class="heart" src="assets/images/icons/heart.png" alt="">';
+                                                                                echo '<img class="heart-color" src="assets/images/icons/heart-color.png" alt="">';
+                                                                                echo '</button>';
+                                                                            echo '</li>';
+                                                                        } 
+                                                                        }else{
+                                                                            echo 'Aucun commentaires';
+                                                                        }
+                                                                    ?>
+                                                                </ul>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                            </div>
+                                            <!-- Modal end -->
+                                        </div>
+                                    </div>
+                                    <!-- share box end -->
+                            </div>
+                        <?php endforeach; ?>
+                        <!-- post status end -->
+                    </div>
+
+                    <div class="col-lg-3 order-3">
+                        <aside class="widget-area">
+                            <!-- widget single item start -->
+                            <div class="card widget-item">
+                                <h4 class="widget-title">Publicite</h4>
+                                <div class="widget-body">
+                                    <div class="add-thumb">
+                                        <a>
+                                            <img src="https://static.wixstatic.com/media/c45752_56b26a33e7e14622961fb82e8fc4c5ca~mv2.jpg/v1/crop/x_965,y_71,w_863,h_1005/fill/w_522,h_610,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/1.jpg" alt="advertisement">
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="add-thumb">
+                                        <a>
+                                            <img src="https://pbs.twimg.com/media/GMnxDS_X0AAJYkg?format=jpg&name=large" alt="advertisement">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- widget single item end -->
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Scroll to top start -->
+    <div class="scroll-top not-visible">
+        <i class="bi bi-finger-index"></i>
+    </div>
+    <!-- Scroll to Top End -->
+
+    <!-- footer area start -->
+    <footer class="d-none d-lg-block">
+        <div class="footer-area reveal-footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="footer-wrapper">
+                            <div class="footer-card position-relative">
+                                <div class="friends-search">
+                                    <form class="search-box">
+                                        <input type="text" placeholder="Search Your Friends" class="search-field" id="searchInput" onkeyup="searchFriends()">
+                                        <button class="search-btn"><i class="flaticon-search"></i></button>
+                                    </form>
+                                </div>
+                                <div class="friend-search-list">
+                                    <div class="frnd-search-title">
+                                        <button class="frnd-search-icon"><i class="flaticon-settings"></i></button>
+                                        <p>search friends</p>
+                                        <button class="close-btn" data-close="friend-search-list"><i class="flaticon-cross-out"></i></button>
+                                    </div>
+                                    <div class="frnd-search-inner custom-scroll">
+                                        <ul id="suggestions">
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card card-small mb-0 active-profile-wrapper">
+                                <div class="active-profiles-wrapper">
+                                    <div class="active-profile-carousel slick-row-20 slick-arrow-style">
+                                        <!-- profile picture end -->
+                                        <?php foreach ($messageInfos as $messageInfo): 
+                                        ?>
+                                            <div class="single-slide">
+                                                <div class="profile-thumb active profile-active">
+                                                    <a href="#">
+                                                    <button  data-user-id="<?php echo $messageInfo['utilisateur_id']; ?>" onclick="loadConversation(<?php echo $messageInfo['utilisateur_id']; ?>)">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="<?php echo $messageInfo['utilisateur_avatar']; ?> " alt="profile picture" style="width:100%">
+                                                        </figure>
+                                                    </button>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                        <!-- profile picture end -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="footer-card position-relative">
+                                <div class="live-chat-inner">
+
+                                    <div class="chat-output-box">
+                                        <div class="live-chat-title">
+                                            <!-- profile picture end -->
+                                            <div class="profile-thumb active">
+                                                <a href="#">
+                                                    <figure class="profile-thumb-small">
+                                                        <img src="<?php echo $messageInfo['utilisateur_avatar']; ?> " alt="profile picture">
+                                                    </figure>
+                                                </a>
+                                            </div>
+                                            <!-- profile picture end -->
+                                            <div class="posted-author">
+                                                <h6 class="author"><a href="profile.html">Robart Marloyan</a></h6>
+                                                <span class="active-pro">active now</span>
+                                            </div>
+                                            <div class="live-chat-settings ms-auto">
+                                                <button class="chat-settings"><i class="flaticon-settings"></i></button>
+                                                <button class="close-btn" data-close="chat-output-box"><i class="flaticon-cross-out"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="message-list-inner">
+                                            <ul class="message-list custom-scroll">
+                                               
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="chat-text-field">
+                                        <textarea class="live-chat-field custom-scroll" placeholder="Text Message"></textarea>
+                                        <button class="chat-message-send" type="submit" value="submit">
+                                            <img src="assets/images/icons/plane.png" alt="">
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- footer area end -->
+    
+    <!-- JS
+============================================ -->
+
+    <!-- Modernizer JS -->
+    <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+    <!-- jQuery JS -->
+    <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
+    <!-- Slick Slider JS -->
+    <script src="assets/js/plugins/slick.min.js"></script>
+    <!-- nice select JS -->
+    <script src="assets/js/plugins/nice-select.min.js"></script>
+    <!-- audio video player JS -->
+    <script src="assets/js/plugins/plyr.min.js"></script>
+    <!-- perfect scrollbar js -->
+    <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <!-- light gallery js -->
+    <script src="assets/js/plugins/lightgallery-all.min.js"></script>
+    <!-- image loaded js -->
+    <script src="assets/js/plugins/imagesloaded.pkgd.min.js"></script>
+    <!-- isotope filter js -->
+    <script src="assets/js/plugins/isotope.pkgd.min.js"></script>
+    <!-- Main JS -->
+    <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,125 @@
+/* MessagePage.module.css */
+:root {
+  --vh: 1vh;
+  --light-gray: #f5f5f5;
+  --gray: #e0e0e0;
+  --dark: #444;
+  --blue: #2ca8ff;
+  --white: #ffffff;
+}
+
+.messagePage {
+  background-color: var(--light-gray);
+}
+
+.chatWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 2em 1em 5em;
+  min-height: calc(var(--vh, 1vh) * 100 - 200px);
+}
+
+.chatContainer {
+  flex: 2;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+}
+
+.contactsContainer {
+  flex: 1;
+  margin-left: 6em;
+  max-width: 250px;
+}
+
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  margin-bottom: 1em;
+}
+
+.contact img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.contact span {
+  font-size: 0.9em;
+  font-weight: 500;
+  color: var(--dark);
+}
+
+.gridMessages {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+.message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6em;
+  max-width: 100%;
+}
+
+.message[data-author="me"] {
+  flex-direction: row-reverse;
+}
+
+.messageUserInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  min-width: 60px;
+}
+
+.messageUserPicture img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.messageUserName {
+  font-size: 0.75em;
+  color: #888;
+  text-align: center;
+}
+
+.messageText {
+  padding: 0.8em 1em;
+  border-radius: 20px;
+  font-size: 0.95em;
+  max-width: 80%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.message[data-author="me"] .messageText {
+  background-color: var(--gray);
+  color: var(--dark);
+  border-radius: 20px 20px 0 20px;
+}
+
+.message:not([data-author="me"]) .messageText {
+  background-color: var(--blue);
+  color: var(--white);
+  border-radius: 20px 20px 20px 0;
+}
+
+.gridMessageInput {
+  margin-top: 2em;
+}
+
+.messageInput {
+  width: 100%;
+  padding: 0.8em 1em;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  outline: none;
+  font-size: 1em;
+}
