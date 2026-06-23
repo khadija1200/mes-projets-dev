@@ -1,0 +1,48 @@
+<div class="page">
+
+  <h2>Candidatures reçues</h2>
+
+  <mat-card class="card" *ngFor="let c of candidatures">
+
+    <div class="top">
+      <h3>{{ c.poste }}</h3>
+
+      <span class="status" [ngClass]="c.status">
+        {{ c.status }}
+      </span>
+    </div>
+
+    <p>
+      Candidat : {{ c.candidat?.email }}
+    </p>
+
+    <p class="meta">
+      Envoyée le : {{ c.createdAt | date:'short' }}
+    </p>
+
+    <div class="actions">
+
+      <button mat-button color="primary" (click)="view(c)">
+        Voir détail
+      </button>
+
+      <button mat-button color="primary" (click)="accept(c)">
+        Accepter
+      </button>
+
+      <button mat-button color="warn" (click)="reject(c)">
+        Refuser
+      </button>
+
+    </div>
+
+    <a *ngIf="c.cvUrl"
+      [href]="'http://localhost:8080/files/' + c.cvUrl"
+      target="_blank"
+      rel="noopener">
+      Voir CV
+    </a>
+
+  </mat-card>
+
+</div>

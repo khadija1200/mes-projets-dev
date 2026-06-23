@@ -1,0 +1,70 @@
+<div class="page" *ngIf="candidature">
+
+  <mat-card class="card">
+
+    <h2>Détail candidature</h2>
+
+    <p>
+      <strong>Poste :</strong>
+      {{ candidature.poste }}
+    </p>
+
+    <p>
+      <strong>Candidat :</strong>
+      {{ candidature.candidat?.email }}
+    </p>
+
+    <p>
+      <strong>Message :</strong>
+    </p>
+
+    <p>
+      {{ candidature.message }}
+    </p>
+
+    <p>
+      <strong>CV :</strong>
+
+      <a
+        *ngIf="candidature.cvUrl"
+        [href]="'http://localhost:8080/files/' + candidature.cvUrl"
+        target="_blank">
+
+        Voir le CV
+      </a>
+
+    </p>
+
+    <p>
+      <strong>Status :</strong>
+
+      <span>
+        {{ candidature.status }}
+      </span>
+    </p>
+
+    <div class="actions">
+
+      <button
+        mat-button
+        color="primary"
+        (click)="accept()">
+
+        Accepter
+
+      </button>
+
+      <button
+        mat-button
+        color="warn"
+        (click)="reject()">
+
+        Refuser
+
+      </button>
+
+    </div>
+
+  </mat-card>
+
+</div>

@@ -1,0 +1,62 @@
+<div class="container">
+
+  <mat-card class="card">
+
+    <h2>Register</h2>
+
+    <form (ngSubmit)="register()">
+
+      <!-- EMAIL -->
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="email" name="email">
+      </mat-form-field>
+
+      <!-- PASSWORD -->
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" [(ngModel)]="password" name="password">
+      </mat-form-field>
+
+      <!-- ROLE -->
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Role</mat-label>
+        <mat-select [(ngModel)]="role" name="role" (ngModelChange)="onRoleChange()">
+          <mat-option value="CANDIDAT">Candidat</mat-option>
+          <mat-option value="RECRUTEUR">Recruteur</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- RECRUTEUR FIELDS -->
+      <div *ngIf="showRecruiterFields">
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Nom entreprise</mat-label>
+          <input matInput [(ngModel)]="companyName" name="companyName">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Adresse entreprise</mat-label>
+          <input matInput [(ngModel)]="address" name="address">
+        </mat-form-field>
+
+      </div>
+
+      <!-- BUTTON -->
+      <button mat-raised-button color="accent" class="full" type="submit">
+        Register
+      </button>
+
+      <!-- LINK LOGIN -->
+      <div class="login-link">
+        <p>
+          Vous avez déjà un compte ?
+          <a routerLink="/login">Se connecter</a>
+        </p>
+      </div>
+
+    </form>
+
+  </mat-card>
+
+</div>

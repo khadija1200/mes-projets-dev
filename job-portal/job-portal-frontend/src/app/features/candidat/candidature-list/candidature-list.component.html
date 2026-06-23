@@ -1,0 +1,37 @@
+<div class="page">
+
+  <h2>Mes candidatures</h2>
+
+  <mat-card class="card" *ngFor="let c of candidatures">
+
+    <div class="header">
+
+      <h3>{{ c.recruiter?.companyName }}</h3>
+
+      <span class="status"
+            [ngClass]="getStatusClass(c.status)">
+        {{ c.status }}
+      </span>
+
+    </div>
+
+    <p><strong>Poste :</strong> {{ c.poste }}</p>
+
+    <p>{{ c.message }}</p>
+
+    <div class="actions">
+
+      <!-- CV -->
+      <a *ngIf="c.cvUrl"
+         mat-button
+         color="primary"
+         [href]="'http://localhost:8080/files/' + c.cvUrl"
+         target="_blank">
+        Voir CV
+      </a>
+
+    </div>
+
+  </mat-card>
+
+</div>

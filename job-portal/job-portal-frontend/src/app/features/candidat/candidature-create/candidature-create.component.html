@@ -1,0 +1,32 @@
+<mat-card class="container">
+
+  <h2>Nouvelle candidature spontanée</h2>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Choisir un recruteur</mat-label>
+    <mat-select [(ngModel)]="recruteurId">
+      <mat-option *ngFor="let r of recruteurs" [value]="r.id">
+        {{ r.companyName }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Poste recherché</mat-label>
+    <input matInput [(ngModel)]="poste">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full">
+    <mat-label>Message d’accompagnement</mat-label>
+    <textarea matInput rows="5" [(ngModel)]="message"></textarea>
+  </mat-form-field>
+
+  <div class="file">
+    <input type="file" (change)="onFileSelected($event)">
+  </div>
+
+  <button mat-raised-button color="primary" class="full" (click)="submit()">
+    Envoyer candidature
+  </button>
+
+</mat-card>
